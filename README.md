@@ -1,4 +1,4 @@
-# AppTFG2.0
+# AppTFG
 
 npx create-docusaurus@latest my-website classic
 cd my-website
