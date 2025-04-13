@@ -15,7 +15,7 @@ const config = {
   favicon: 'img/micubo-bg.png',
 
   // Set the production url of your site here
-  url: 'https://josele03.github.io./',
+  url: 'https://josele03.github.io',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
   baseUrl: '/',
@@ -23,10 +23,11 @@ const config = {
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
   organizationName: 'josele03', // Usually your GitHub org/user name.
-  projectName: 'AppTFG2.0', // Usually your repo name.
+  projectName: 'josele03.github.io', // Usually your repo name.
 
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
+  //trailingSlash: false,
 
   // Even if you don't use internationalization, you can use this field to set
   // useful metadata like html lang. For example, if your site is Chinese, you
