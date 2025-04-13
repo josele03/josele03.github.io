@@ -7,13 +7,15 @@
 import React from 'react';
 import CubeContainer from '../Rubix/CubeContainer'; // Ajusta la ruta
 import '../../css/rubix.css'; // Ajusta la ruta de los estilos
+import BrowserOnly from '@docusaurus/BrowserOnly';
+
 
 class AppRubix extends React.Component {
     render() {
         return (
-            <div className="app">
-                <CubeContainer/>
-            </div>
+            <BrowserOnly>
+            {() => <CubeContainer />}
+            </BrowserOnly>
         );
     }
 }

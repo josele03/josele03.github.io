@@ -53,7 +53,8 @@ class CubeContainer extends Component {
             ],
             angleOfRotation: Array(27).fill(0)
             , rotationVector: Array(27).fill([1, 0, 0]),
-            faceRotationAngle: 0
+            faceRotationAngle: 0,
+            scalingFactor: 1, // Agrega el estado para el factor de escala
         };
         this.onTouchStart = this.onTouchStart.bind(this);
         this.onTouchMove = this.onTouchMove.bind(this);
@@ -61,24 +62,40 @@ class CubeContainer extends Component {
         this.rotateCube = this.rotateCube.bind(this);
         this.reArrangeCubes = this.reArrangeCubes.bind(this);
         this.rotateCubeSpace = this.rotateCubeSpace.bind(this);
-        this.faceRotationInit=this.faceRotationInit.bind(this);
+        this.faceRotationInit = this.faceRotationInit.bind(this);
+        this.updateScalingFactor = this.updateScalingFactor.bind(this);
     }
 
     componentDidMount() {
-        //adding listener for mouseup
+        // Calcular el factor de escala inicial
+        this.updateScalingFactor();
+
+        // Agregar un listener para manejar cambios de tamaño de ventana
+        window.addEventListener('resize', this.updateScalingFactor);
+
+        // Agregar listeners existentes
         this.elem.addEventListener('mouseup', this.onTouchEnd);
         this.elem.addEventListener('touchend', this.onTouchEnd);
         this.elem.addEventListener('touchcancel', this.onTouchEnd);
 
-        //Initial position
+        // Posición inicial
         this.rotateCubeSpace(120, 0);
     }
 
     componentWillUnmount() {
-        //removeEventListener        
+        // Eliminar el listener de redimensionamiento
+        window.removeEventListener('resize', this.updateScalingFactor);
+
+        // Eliminar listeners existentes
         this.elem.removeEventListener('mouseup', this.onTouchEnd);
         this.elem.removeEventListener('touchend', this.onTouchEnd);
         this.elem.removeEventListener('touchcancel', this.onTouchEnd);
+    }
+
+    updateScalingFactor() {
+        const minSize = Math.min(window.innerWidth, window.innerHeight);
+        const scalingFactor = Math.min(Math.max(minSize / 300, 1), 1.5);
+        this.setState({ scalingFactor });
     }
 
     /**return css parameters for orientation */
@@ -126,17 +143,17 @@ class CubeContainer extends Component {
             this.setState({ mousePoint: { x: getTouchPositions(eve).clientX, y: getTouchPositions(eve).clientY } }, () => {
                 this.rotateCubeSpace(diffX, diffY);
             });
-        }else if(this.state.touchedFace){
+        } else if (this.state.touchedFace) {
             let diffY = getTouchPositions(eve).clientY - this.state.mousePoint.y;
             let diffX = getTouchPositions(eve).clientX - this.state.mousePoint.x;
             this.setState({ mousePoint: { x: getTouchPositions(eve).clientX, y: getTouchPositions(eve).clientY } });
-            this.rotateCube(diffX/2, diffY/2, this.state.positions[this.state.facePositionIndex], 
+            this.rotateCube(diffX / 2, diffY / 2, this.state.positions[this.state.facePositionIndex],
                 this.state.touchedFace, this.getOrientation(this.state.facePositionIndex));
         }
     }
 
     onTouchEnd() {
-        this.setState({ touchStarted: false, mousePoint: {},touchedFace:undefined });
+        this.setState({ touchStarted: false, mousePoint: {}, touchedFace: undefined });
         if (this.state.faceRotationIndex) {
             this.reArrangeCubes();
         }
@@ -268,29 +285,32 @@ class CubeContainer extends Component {
         );
     }
 
-    getScalingFactor() {
-        const minSize = window.innerHeight > window.innerWidth ? window.innerWidth : window.innerHeight;
-        return  Math.min(Math.max(minSize/300, 1), 1.5);
-    }
-
-    faceRotationInit(mousePoint,face,index){
-        this.setState({touchedFace:face,mousePoint:mousePoint,facePositionIndex:index});
+    faceRotationInit(mousePoint, face, index) {
+        this.setState({ touchedFace: face, mousePoint: mousePoint, facePositionIndex: index });
     }
 
     render() {
         return (
-            <div ref={elem => this.elem = elem}
+            <div
+                ref={(elem) => (this.elem = elem)}
                 className="cube-container"
-                style={{transform:`scale(${this.getScalingFactor()})`}}
+                style={{ transform: `scale(${this.state.scalingFactor})` }}
                 onMouseDown={this.onTouchStart}
                 onTouchStart={this.onTouchStart}
                 onMouseMove={this.onTouchMove}
-                onTouchMove={this.onTouchMove}>
+                onTouchMove={this.onTouchMove}
+            >
                 {this.state.positions.map((val, index) => {
                     return (
-                        <Cube key={index} faceRotationInit={(mousePoint,face)=>{this.faceRotationInit(mousePoint,face,index)}}
-                            translate={this.state.positions[index]} orientation={this.getOrientation(index)} />
-                    )
+                        <Cube
+                            key={index}
+                            faceRotationInit={(mousePoint, face) => {
+                                this.faceRotationInit(mousePoint, face, index);
+                            }}
+                            translate={this.state.positions[index]}
+                            orientation={this.getOrientation(index)}
+                        />
+                    );
                 })}
             </div>
         );
